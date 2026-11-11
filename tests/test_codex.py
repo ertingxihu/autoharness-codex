@@ -114,3 +114,19 @@ def test_manual_learn_cli_reaches_pipeline(tmp_path, monkeypatch):
     learn(tmp_path, episode)
     assert seen['text'] == 'Use atomic JSON writes.'
     assert seen['roots']['project'] == tmp_path / '.agents'
+
+
+def test_codex_prior_digest_excludes_tools_and_instructions(tmp_path):
+    from autoharness.hook import capture
+    path = tmp_path / 'rollout.jsonl'
+    rows = [
+        {'type': 'response_item', 'payload': {'type': 'message', 'role': 'developer', 'content': [{'type': 'input_text', 'text': 'SECRET_INSTRUCTIONS'}]}},
+        {'type': 'response_item', 'payload': {'type': 'message', 'role': 'user', 'content': [{'type': 'input_text', 'text': 'Use atomic JSON writes.'}]}},
+        {'type': 'response_item', 'payload': {'type': 'function_call_output', 'output': 'LARGE_OUTPUT'}},
+        {'type': 'response_item', 'payload': {'type': 'message', 'role': 'assistant', 'content': [{'type': 'output_text', 'text': 'Verified atomic replace.'}]}},
+    ]
+    path.write_text('\n'.join(json.dumps(row) for row in rows))
+    digest = capture.digest(path, path.stat().st_size)
+    assert 'user: Use atomic JSON writes.' in digest
+    assert 'assistant: Verified atomic replace.' in digest
+    assert 'SECRET_INSTRUCTIONS' not in digest and 'LARGE_OUTPUT' not in digest
