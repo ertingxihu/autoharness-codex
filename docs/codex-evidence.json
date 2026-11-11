@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-11",
+  "version": "0.6.2",
+  "code_revision": "0e13a7d",
+  "test_summary": {
+    "passed": 983,
+    "deselected_claude_live": 1
+  },
+  "accounts": [
+    {
+      "run_id": "01a1cb36-5a4b-77c1-9413-17e1b58e3530-1-386e600cd8f0453bad41143e9a3b4807",
+      "verdicts": [
+        {
+          "action": "create",
+          "name": "ah-atomic-json-config",
+          "ok": true,
+          "findings": [],
+          "notes": []
+        }
+      ]
+    },
+    {
+      "run_id": "01a1cb3a-e782-7e12-9c1d-64f92013eb11-1-8aaa608f60c541718b505ef0d67de162",
+      "verdicts": [
+        {
+          "action": "patch",
+          "name": "ah-atomic-json-config",
+          "ok": true,
+          "findings": [],
+          "notes": []
+        }
+      ]
+    }
+  ],
+  "recall": {
+    "id": "item_1",
+    "type": "command_execution",
+    "command": "/bin/zsh -lc 'cat .agents/skills/ah-atomic-json-config/SKILL.md'",
+    "aggregated_output": "---\nname: ah-atomic-json-config\ndescription: Use when updating JSON configuration files.\ncategory: configuration\n---\n本项目更新 JSON 配置时，先把完整内容写入目标文件同一目录下的临时文件，再原子替换目标文件，避免写入中断导致原文件被截断。\n仅要求读取或确认内容时，不执行写入或替换。\n",
+    "exit_code": 0,
+    "status": "completed"
+  },
+  "final_skill": "---\nname: ah-atomic-json-config\ndescription: Use when updating JSON configuration files.\ncategory: configuration\n---\n本项目更新 JSON 配置时，先把完整内容写入目标文件同一目录下的临时文件，依次执行 `flush()` 和 `os.fsync(f.fileno())`，成功后再用 `os.replace()` 原子替换目标文件，避免写入中断导致原文件被截断。\n仅要求读取或确认内容时，不执行写入或替换。\n",
+  "sidecar": {
+    "created_by": "agent",
+    "use": 0,
+    "view": 1,
+    "patch": 1,
+    "anchor": 1,
+    "verification": null
+  },
+  "managed_skill_count": 1
+}
