@@ -97,6 +97,15 @@ def window(transcript_path, offset=0, *, max_record_bytes=None, max_window_bytes
 
 def _digest_record(line, max_chars):
     record = json.loads(line)
+    if record.get("type") == "response_item":
+        payload = record.get("payload") or {}
+        if payload.get("type") != "message" or payload.get("role") not in ("user", "assistant"):
+            return None
+        record = {"type": payload["role"], "message": {"content": [
+            {"type": "text", "text": block.get("text", "")}
+            for block in payload.get("content", [])
+            if isinstance(block, dict) and block.get("type") in ("input_text", "output_text")
+        ]}}
     if record.get("type") not in ("user", "assistant"):
         return None
     role = record["type"]
