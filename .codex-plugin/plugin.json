@@ -1,0 +1,12 @@
+{
+  "name": "autoharness-codex",
+  "version": "0.6.0",
+  "description": "Learn and maintain skills from real Codex sessions.",
+  "author": {
+    "name": "ertingxihu"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/ertingxihu/autoharness-codex",
+  "skills": "./codex/skills/",
+  "hooks": "./codex/hooks/hooks.json"
+}

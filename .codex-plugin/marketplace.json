@@ -1,0 +1,13 @@
+{
+  "name": "autoharness-codex",
+  "owner": {
+    "name": "ertingxihu"
+  },
+  "plugins": [
+    {
+      "name": "autoharness-codex",
+      "source": "./",
+      "description": "Learn and maintain skills from real Codex sessions."
+    }
+  ]
+}

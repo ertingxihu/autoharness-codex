@@ -195,6 +195,8 @@ def build_fork_prompt(index, spec):
 
 
 def build_command(*, agent, claude_bin):
+    if os.environ.get("AUTOHARNESS_HOST") == "codex":
+        return [sys.executable, "-m", "autoharness.codex.worker", agent.rsplit(":", 1)[-1]]
     # Reflection is an unattended background job — nobody is there to approve tool calls, so skip the
     # permission prompt. The security boundary is held by the agent's tools allowlist
     # (Read/Grep/Glob/stage_skill) + the top-level PreToolUse write backstop, not by the prompt.
@@ -290,7 +292,7 @@ def run(window_text, run_id, *, roots, repo_name=None, agent=None, claude_bin=No
     spec = (spec_path or config.FORMAT_SPEC).read_text(encoding="utf-8")
 
     carrier = carrier or config.REFLECTOR_CARRIER
-    forked = carrier == "fork" and bool(session_id)
+    forked = carrier == "fork" and bool(session_id) and os.environ.get("AUTOHARNESS_HOST") != "codex"
     if forked:  # no session to fork -> bundle chain (fail-safe)
         argv = build_fork_command(session_id=session_id, claude_bin=claude_bin or config.CLAUDE_BIN)
         payload = build_fork_prompt(description_index(roots), spec)  # -p reads the prompt from stdin
