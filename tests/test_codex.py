@@ -89,3 +89,14 @@ def test_plugin_has_codex_entrypoints():
     hooks = json.loads((root / manifest['hooks']).read_text())['hooks']
     assert {'SessionStart', 'PreToolUse', 'Stop'} <= set(hooks)
     assert (root / manifest['skills'] / 'learn/SKILL.md').exists()
+
+
+def test_manual_learn_cli_reaches_pipeline(tmp_path, monkeypatch):
+    from autoharness.codex.learn import learn
+    episode = tmp_path / 'episode.txt'
+    episode.write_text('Use atomic JSON writes.')
+    seen = {}
+    monkeypatch.setattr(spawn, 'run', lambda text, rid, **kw: seen.update(text=text, roots=kw['roots']) or [])
+    learn(tmp_path, episode)
+    assert seen['text'] == 'Use atomic JSON writes.'
+    assert seen['roots']['project'] == tmp_path / '.agents'
