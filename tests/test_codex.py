@@ -18,7 +18,9 @@ def restore_codex_environment(monkeypatch):
         if key in os.environ:
             monkeypatch.setenv(key, os.environ[key])
         else:
-            monkeypatch.delenv(key, raising=False)
+            # Register a missing key before direct configure() writes it.
+            monkeypatch.setenv(key, "")
+            monkeypatch.delenv(key)
 
 
 def test_codex_command_uses_worker(monkeypatch):
