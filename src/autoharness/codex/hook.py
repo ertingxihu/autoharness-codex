@@ -1,6 +1,7 @@
 """Translate Codex hook events to the shared deterministic pipeline."""
 import json
 import os
+import shlex
 import sys
 from pathlib import Path
 
@@ -25,11 +26,27 @@ def handle(event):
         if context:
             paths = '\n'.join(f'{lyr}: {layer.skills_dir(lyr, root)}/<name>/SKILL.md' for lyr, root in roots.items())
             result['result']['context'] += '\nLoad matching skills by reading their SKILL.md:\n' + paths
-    # Track only explicit file read tools. Shell commands cannot prove a skill was followed.
-    if event.get('hook_event_name') == 'PostToolUse' and event.get('tool_name', '').split('.')[-1] == 'read_file':
+    # Views are evidence of reading, not proof that the model followed a skill.
+    if event.get('hook_event_name') == 'PostToolUse':
         args = event.get('tool_input') or {}
-        if isinstance(args, dict) and isinstance(args.get('path'), str):
-            on_skill_call.on_skill_read({'tool_input': {'file_path': args['path']}}, roots=roots)
+        tool = event.get('tool_name', '').split('.')[-1]
+        response = event.get('tool_response') or {}
+        failed = isinstance(response, dict) and response.get('exit_code', 0) not in (0, None)
+        paths = []
+        if not failed and isinstance(args, dict):
+            if tool == 'read_file' and isinstance(args.get('path'), str):
+                paths = [args['path']]
+            elif tool in ('exec_command', 'Bash', 'shell_command'):
+                command = args.get('cmd') or args.get('command') or ''
+                try:
+                    words = shlex.split(command)
+                except (ValueError, TypeError):
+                    words = []
+                if words and words[0] == 'cat' and not any(c in command for c in ';|&><`$'):
+                    paths = [word for word in words[1:] if not word.startswith('-')]
+            for path in paths:
+                file_path = str((Path(args.get('workdir') or cwd) / path).resolve())
+                on_skill_call.on_skill_read({'tool_input': {'file_path': file_path}}, roots=roots)
     return result
 
 

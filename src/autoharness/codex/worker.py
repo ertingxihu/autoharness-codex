@@ -64,7 +64,7 @@ def stage_output(output, run_id, root):
 
 def library_snapshot():
     from autoharness import config
-    from autoharness.lib import layer, sidecar, redact
+    from autoharness.lib import layer, redact, sidecar
     chunks, budget = [], 120_000
     for lyr in config.active_layers():
         root = layer.default_root(lyr)
