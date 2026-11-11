@@ -9,6 +9,18 @@ import pytest
 from autoharness.hook import spawn
 
 
+@pytest.fixture(autouse=True)
+def restore_codex_environment(monkeypatch):
+    keys = ('AUTOHARNESS_HOST', 'AUTOHARNESS_GLOBAL_ROOT', 'AUTOHARNESS_PROJECT_DIR',
+            'AUTOHARNESS_STATE_HOME', 'AUTOHARNESS_SKILL_PREFIX',
+            'AUTOHARNESS_GRADUATION_SUSPENDED', 'AUTOHARNESS_CARRIER')
+    for key in keys:
+        if key in os.environ:
+            monkeypatch.setenv(key, os.environ[key])
+        else:
+            monkeypatch.delenv(key, raising=False)
+
+
 def test_codex_command_uses_worker(monkeypatch):
     monkeypatch.setenv('AUTOHARNESS_HOST', 'codex')
     command = spawn.build_command(agent='autoharness:reflector', claude_bin='claude')

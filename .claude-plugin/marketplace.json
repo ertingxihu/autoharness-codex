@@ -1,11 +1,18 @@
 {
-  "name": "autoharness",
-  "owner": { "name": "Tigerless Labs" },
+  "name": "autoharness-codex",
+  "owner": {
+    "name": "Tigerless Labs"
+  },
   "plugins": [
     {
       "name": "autoharness",
       "source": "./",
-      "description": "Per-symbol maintenance optimizer for an agent's skill layer — learns skills from real runs, keeps them by adherence in use."
+      "description": "Per-symbol maintenance optimizer for an agent's skill layer \u2014 learns skills from real runs, keeps them by adherence in use."
+    },
+    {
+      "name": "autoharness-codex",
+      "source": "./",
+      "description": "Codex-native automatic skill learning."
     }
   ]
 }
