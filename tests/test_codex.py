@@ -130,3 +130,19 @@ def test_codex_prior_digest_excludes_tools_and_instructions(tmp_path):
     assert 'user: Use atomic JSON writes.' in digest
     assert 'assistant: Verified atomic replace.' in digest
     assert 'SECRET_INSTRUCTIONS' not in digest and 'LARGE_OUTPUT' not in digest
+
+
+def test_successful_cat_records_view_without_claiming_adherence(tmp_path, monkeypatch):
+    from autoharness.codex.hook import handle
+    from autoharness.lib import sidecar, skill_store
+    project = tmp_path / 'project'
+    project.mkdir()
+    root = project / '.agents'
+    monkeypatch.setenv('AUTOHARNESS_GLOBAL_ROOT', str(tmp_path / 'global'))
+    monkeypatch.setenv('AUTOHARNESS_STATE_HOME', str(tmp_path / 'state'))
+    skill_store.write_body('project', 'ah-test', '---\nname: ah-test\ndescription: Use when testing.\n---\nRead tests.\n', root)
+    sidecar.create('project', 'ah-test', anchor=0, root=root)
+    handle({'hook_event_name': 'PostToolUse', 'cwd': str(project), 'tool_name': 'exec_command',
+            'tool_input': {'cmd': 'cat .agents/skills/ah-test/SKILL.md'}, 'tool_response': {'exit_code': 0}})
+    value = sidecar.read('project', 'ah-test', root)
+    assert value['view'] == 1 and value['use'] == 0
