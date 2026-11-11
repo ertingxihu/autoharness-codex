@@ -50,7 +50,7 @@
           {
             "type": "command",
             "command": "PYTHONPATH=\"${PLUGIN_ROOT}/src\" python3 -m autoharness.codex.hook",
-            "timeout": 10
+            "timeout": 3
           }
         ]
       }
